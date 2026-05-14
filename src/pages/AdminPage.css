@@ -1,0 +1,24 @@
+.admin-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  text-align: left;
+}
+
+.admin-header {
+  margin-bottom: 0.75rem;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-h);
+}
+
+  list-style: none;
+  margin: 0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

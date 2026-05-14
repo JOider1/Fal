@@ -1,0 +1,132 @@
+.product-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.product-list--loading,
+.product-list--empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+
+.product-card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+.product-card__main {
+  display: block;
+  padding: 1rem 2.25rem 1rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  text-align: left;
+}
+
+/* Фіксована комірка 150×150 px; зображення всередині масштабується (contain) */
+.product-card__thumb-wrap {
+  width: 150px;
+  height: 150px;
+  max-width: 100%;
+  margin: 0 auto 0.55rem;
+  border-radius: 10px;
+  background: var(--code-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.product-card__img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+.product-card__title {
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 0.35rem;
+  line-height: 1.25;
+}
+
+.product-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.product-card__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.45rem;
+}
+
+.product-card__size-pill {
+  font-size: 0.78rem;
+  line-height: 1.2;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.product-card__size-pill--zero {
+  opacity: 0.55;
+  color: var(--muted);
+}
+
+.product-card__size-pill strong {
+  font-weight: 600;
+}
+
+.product-card__price {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.product-card__fav {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.product-card__fav--on {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+.product-card__fav:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

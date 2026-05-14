@@ -1,0 +1,40 @@
+.favorites-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2.5rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.favorites-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.favorites-header__title {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.5rem, 2vw, 1.85rem);
+  color: var(--text-h);
+}
+
+.favorites-header__sub {
+  margin: 0;
+  color: var(--muted);
+  max-width: 60ch;
+}
+
+.favorites-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.favorites-page .banner {
+  margin-bottom: 1rem;
+}

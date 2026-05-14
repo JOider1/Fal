@@ -1,0 +1,29 @@
+.pagination-bar {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pagination-bar__info {
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-align: left;
+  flex: 1 1 220px;
+}
+
+.pagination-bar__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination-bar__page {
+  font-size: 0.9rem;
+  color: var(--text-h);
+  white-space: nowrap;
+}
