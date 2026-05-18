@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CatalogApiError, fetchProductById } from '../services/catalogApi'
-import { isFavorite, toggleFavorite } from '../services/favoritesStorage'
+import { useFavorites } from '../context/FavoritesContext'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './ProductDetailPage.css'
 
@@ -14,14 +14,13 @@ function sortedStocks(sizeStocks) {
 export function ProductDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { isFavorite, toggle: toggleFavorite } = useFavorites()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [fav, setFav] = useState(() => isFavorite(id))
+  const [favError, setFavError] = useState(null)
 
-  useEffect(() => {
-    setFav(isFavorite(id))
-  }, [id])
+  const fav = isFavorite(id)
 
   useEffect(() => {
     let cancelled = false
@@ -55,10 +54,20 @@ export function ProductDetailPage() {
     product ? `${product.name} — деталі товару` : 'Деталі товару',
   )
 
-  const onToggleFav = () => {
-    toggleFavorite(id)
-    setFav(isFavorite(id))
+  const onToggleFav = async () => {
+    setFavError(null)
+    try {
+      await toggleFavorite(id)
+    } catch (e) {
+      const msg =
+        e instanceof CatalogApiError
+          ? e.message
+          : 'Не вдалося оновити обране.'
+      setFavError(msg)
+    }
   }
+
+  const imageSrc = product?.imageUrl || `/api/product-images/${product?.id ?? id}`
 
   return (
     <div className="detail-page">
@@ -71,9 +80,6 @@ export function ProductDetailPage() {
             До каталогу
           </Link>
         </div>
-        <h1 className="detail-header__title">
-          {loading ? 'Завантаження…' : product?.name ?? 'Товар'}
-        </h1>
       </header>
 
       {error ? (
@@ -82,77 +88,72 @@ export function ProductDetailPage() {
         </div>
       ) : null}
 
+      {loading ? (
+        <p className="detail-loading" role="status">
+          Завантаження…
+        </p>
+      ) : null}
+
       {product ? (
         <article className="detail-card panel">
-          <div className="detail-hero">
-            <img
-              className="detail-hero__img"
-              src={product.imageUrl || `/api/product-images/${product.id}`}
-              alt=""
-            />
-          </div>
-          <div className="detail-grid">
-            <dl className="detail-dl">
-              <div>
-                <dt>Назва</dt>
-                <dd>{product.name}</dd>
+          <div className="detail-layout">
+            <div className="detail-hero">
+              <img className="detail-hero__img" src={imageSrc} alt="" />
+            </div>
+
+            <div className="detail-info">
+              <h1 className="detail-info__title">{product.name}</h1>
+              <p className="detail-info__brand">{product.brandName}</p>
+              <p className="detail-info__attrs">
+                {product.colorName} • {product.clothingTypeName} • {product.seasonName}
+              </p>
+              <p className="detail-price">{product.price} ₴</p>
+
+              <div className="detail-info__actions">
+                <button
+                  type="button"
+                  className={fav ? 'btn btn--accent' : 'btn'}
+                  aria-pressed={fav}
+                  onClick={onToggleFav}
+                >
+                  {fav ? '★ У обраному' : '☆ Додати до обраного'}
+                </button>
+                <Link className="nav-link" to="/favorites">
+                  Перейти до обраного
+                </Link>
               </div>
-              <div>
-                <dt>Опис</dt>
-                <dd>{product.description}</dd>
-              </div>
-              <div>
-                <dt>Бренд</dt>
-                <dd>{product.brandName}</dd>
-              </div>
-              <div>
-                <dt>Колір</dt>
-                <dd>{product.colorName}</dd>
-              </div>
-              <div>
-                <dt>Розміри та залишок</dt>
-                <dd>
-                  {product.sizeStocks?.length ? (
-                    <ul className="detail-stock-list">
-                      {sortedStocks(product.sizeStocks).map((x) => (
-                        <li
-                          key={x.sizeId}
-                          className={
-                            x.quantity > 0 ? undefined : 'detail-stock-list__row--zero'
-                          }
-                        >
-                          <span className="detail-stock-list__size">{x.sizeCode}</span>
-                          <span className="detail-stock-list__qty">{x.quantity} шт.</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    '—'
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt>Сезон</dt>
-                <dd>{product.seasonName}</dd>
-              </div>
-              <div>
-                <dt>Тип одягу</dt>
-                <dd>{product.clothingTypeName}</dd>
-              </div>
-              <div>
-                <dt>Ціна</dt>
-                <dd className="detail-price">{product.price} ₴</dd>
-              </div>
-            </dl>
-            <div className="detail-side">
-              <button
-                type="button"
-                className={fav ? 'btn btn--accent' : 'btn'}
-                aria-pressed={fav}
-                onClick={onToggleFav}
-              >
-                {fav ? 'У обраному' : 'Додати до обраного'}
-              </button>
+
+              {favError ? (
+                <div className="banner banner--error detail-info__fav-err" role="alert">
+                  {favError}
+                </div>
+              ) : null}
+
+              <section className="detail-section">
+                <h2 className="detail-section__title">Опис</h2>
+                <p className="detail-section__text">{product.description}</p>
+              </section>
+
+              <section className="detail-section">
+                <h2 className="detail-section__title">Розміри та залишок</h2>
+                {product.sizeStocks?.length ? (
+                  <ul className="detail-stock-list">
+                    {sortedStocks(product.sizeStocks).map((x) => (
+                      <li
+                        key={x.sizeId}
+                        className={
+                          x.quantity > 0 ? undefined : 'detail-stock-list__row--zero'
+                        }
+                      >
+                        <span className="detail-stock-list__size">{x.sizeCode}</span>
+                        <span className="detail-stock-list__qty">{x.quantity} шт.</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="detail-section__text">—</p>
+                )}
+              </section>
             </div>
           </div>
         </article>

@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { getDb } from '../database.mjs'
 import { queryGet } from '../query.mjs'
-import { findUserByUsername } from '../repositories/userRepository.mjs'
+import { createUser, findUserByUsername } from '../repositories/userRepository.mjs'
 import { getBearerToken, signToken, verifyToken } from './token.mjs'
 
 function sendDbError(res, err) {
@@ -16,6 +16,56 @@ function sendDbError(res, err) {
 }
 
 export function registerAuthRoutes(app) {
+  app.post('/api/auth/register', (req, res) => {
+    try {
+      getDb()
+    } catch (err) {
+      return sendDbError(res, err)
+    }
+    const username = String(req.body?.username ?? '').trim()
+    const password = String(req.body?.password ?? '')
+    if (username.length < 3) {
+      return res.status(400).json({
+        error: 'invalid_username',
+        message: 'Логін має містити щонайменше 3 символи',
+      })
+    }
+    if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
+      return res.status(400).json({
+        error: 'invalid_username',
+        message: 'Логін може містити лише літери, цифри, ".", "_" та "-"',
+      })
+    }
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: 'invalid_password',
+        message: 'Пароль має містити щонайменше 6 символів',
+      })
+    }
+    if (findUserByUsername(username)) {
+      return res.status(409).json({
+        error: 'username_taken',
+        message: 'Користувач з таким логіном уже існує',
+      })
+    }
+    const created = createUser(username, password, 'user')
+    if (!created) {
+      return res.status(400).json({
+        error: 'registration_failed',
+        message: 'Не вдалося створити обліковий запис',
+      })
+    }
+    const token = signToken({
+      userId: created.id,
+      username: created.username,
+      role: created.role,
+    })
+    return res.status(201).json({
+      token,
+      user: { id: created.id, username: created.username, role: created.role },
+    })
+  })
+
   app.post('/api/auth/login', (req, res) => {
     try {
       getDb()

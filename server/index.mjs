@@ -4,7 +4,9 @@ import { initDatabase, getDb, getInitError } from './database.mjs'
 import { runMigrations } from './migrate.mjs'
 import * as lookupRepository from './repositories/lookupRepository.mjs'
 import * as productRepository from './repositories/productRepository.mjs'
+import * as favoritesRepository from './repositories/favoritesRepository.mjs'
 import { registerAuthRoutes } from './auth/authRoutes.mjs'
+import { requireAuth } from './auth/requireAuth.mjs'
 import { ensureSeedUsers } from './seedAuth.mjs'
 import { registerProductImageRoute } from './productImages.mjs'
 
@@ -129,6 +131,30 @@ app.get(
     res.json(product)
   }),
 )
+
+app.get('/api/favorites', (req, res) => {
+  try {
+    getDb()
+  } catch (err) {
+    return sendDbError(res, err)
+  }
+  const auth = requireAuth(req, res)
+  if (!auth) return
+  const productIds = favoritesRepository.getFavoriteProductIds(auth.userId)
+  res.json({ productIds })
+})
+
+app.post('/api/favorites/:productId/toggle', (req, res) => {
+  try {
+    getDb()
+  } catch (err) {
+    return sendDbError(res, err)
+  }
+  const auth = requireAuth(req, res)
+  if (!auth) return
+  const result = favoritesRepository.toggleFavorite(auth.userId, req.params.productId)
+  res.json(result)
+})
 
 async function start() {
   try {

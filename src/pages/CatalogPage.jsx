@@ -12,10 +12,7 @@ import {
   fetchSeasons,
   fetchSizes,
 } from '../services/catalogApi'
-import {
-  getFavoriteIds,
-  toggleFavorite as toggleFavoriteStorage,
-} from '../services/favoritesStorage'
+import { useFavorites } from '../context/FavoritesContext'
 import {
   loadFilterSettings,
   saveFilterSettings,
@@ -55,7 +52,8 @@ export function CatalogPage() {
   const [listLoading, setListLoading] = useState(true)
   const [listError, setListError] = useState(null)
 
-  const [favoriteIds, setFavoriteIds] = useState(() => getFavoriteIds())
+  const { favoriteIds, toggle: toggleFavorite } = useFavorites()
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -161,10 +159,16 @@ export function CatalogPage() {
     setPage(1)
   }, [])
 
-  const onToggleFavorite = useCallback((id) => {
-    const next = toggleFavoriteStorage(id)
-    setFavoriteIds(next)
-  }, [])
+  const onToggleFavorite = useCallback(
+    async (id) => {
+      try {
+        await toggleFavorite(id)
+      } catch {
+        /* залишаємо попередній стан */
+      }
+    },
+    [toggleFavorite],
+  )
 
   const dbError = lookupsError || listError
   const retry = () => {
@@ -196,10 +200,24 @@ export function CatalogPage() {
       <div className="catalog-page__body">
         <div className="catalog-layout">
           <div className="catalog-layout__filters">
+            <button
+              type="button"
+              className="catalog-filters-toggle btn"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen((v) => !v)}
+            >
+              {filtersOpen ? 'Сховати фільтри' : 'Показати фільтри'}
+            </button>
             {lookupsLoading ? (
               <div className="panel-muted">Завантаження фільтрів…</div>
             ) : (
-              <div className="catalog-filters panel">
+              <div
+                className={
+                  filtersOpen
+                    ? 'catalog-filters panel catalog-filters--open'
+                    : 'catalog-filters panel'
+                }
+              >
                 <FilterPanel
                   lookups={lookups}
                   brandIds={brandIds}

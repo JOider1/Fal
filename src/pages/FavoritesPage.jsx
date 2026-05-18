@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FavoritesList } from '../components/FavoritesList'
 import { CatalogApiError, fetchProductsByIds } from '../services/catalogApi'
-import { getFavoriteIds, toggleFavorite } from '../services/favoritesStorage'
+import { useFavorites } from '../context/FavoritesContext'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './FavoritesPage.css'
 
@@ -10,48 +10,44 @@ export function FavoritesPage() {
   useDocumentTitle('Обрані товари')
 
   const navigate = useNavigate()
+  const { favoriteIds, toggle: toggleFavorite } = useFavorites()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [favoriteIds, setFavoriteIds] = useState(() => getFavoriteIds())
 
-  useEffect(() => {
-    const ids = getFavoriteIds()
-    setFavoriteIds(ids)
+  const loadProducts = useCallback(async (ids) => {
     if (!ids.length) {
       setItems([])
       setLoading(false)
       return
     }
-    let cancelled = false
     setLoading(true)
     setError(null)
-    fetchProductsByIds(ids)
-      .then((data) => {
-        if (cancelled) return
-        setItems(data.items ?? [])
-      })
-      .catch((e) => {
-        if (cancelled) return
-        const msg =
-          e instanceof CatalogApiError
-            ? e.message
-            : 'Не вдалося завантажити обране.'
-        setError(msg)
-        setItems([])
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
+    try {
+      const data = await fetchProductsByIds(ids)
+      setItems(data.items ?? [])
+    } catch (e) {
+      const msg =
+        e instanceof CatalogApiError
+          ? e.message
+          : 'Не вдалося завантажити обране.'
+      setError(msg)
+      setItems([])
+    } finally {
+      setLoading(false)
     }
   }, [])
 
-  const onToggleFavorite = (id) => {
-    const next = toggleFavorite(id)
-    setFavoriteIds(next)
-    setItems((prev) => prev.filter((p) => next.includes(p.id)))
+  useEffect(() => {
+    loadProducts(favoriteIds)
+  }, [favoriteIds, loadProducts])
+
+  const onToggleFavorite = async (id) => {
+    try {
+      await toggleFavorite(id)
+    } catch {
+      /* ignore */
+    }
   }
 
   return (
@@ -60,7 +56,7 @@ export function FavoritesPage() {
         <div>
           <h1 className="favorites-header__title">Список обраного</h1>
           <p className="favorites-header__sub">
-            Тут лише збережені товари. Фільтри каталогу на цьому екрані не відображаються.
+            Збережені товари вашого облікового запису ({favoriteIds.length}).
           </p>
         </div>
         <nav className="favorites-header__actions" aria-label="Дії">

@@ -37,6 +37,16 @@
   line-height: 1.4;
 }
 
+.login-card__link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-card__link:hover {
+  text-decoration: underline;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
@@ -62,6 +72,7 @@
   color: var(--text-h);
 }
 
+.login-form .btn--primary {
   border-color: var(--accent-border);
   background: var(--accent-bg);
   font-weight: 600;

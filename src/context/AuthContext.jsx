@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { CatalogApiError, fetchMe, loginRequest } from '../services/catalogApi'
+import { CatalogApiError, fetchMe, loginRequest, registerRequest } from '../services/catalogApi'
 import { clearAuthToken, getAuthToken, setAuthToken } from '../services/authStorage'
 
 const AuthContext = createContext(null)
@@ -45,6 +45,13 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
+  const register = useCallback(async (username, password) => {
+    const data = await registerRequest(username, password)
+    setAuthToken(data.token)
+    setUser(data.user ?? null)
+    return data.user
+  }, [])
+
   const logout = useCallback(() => {
     clearAuthToken()
     setUser(null)
@@ -56,10 +63,11 @@ export function AuthProvider({ children }) {
       ready,
       isAdmin: user?.role === 'admin',
       login,
+      register,
       logout,
       refreshMe,
     }),
-    [user, ready, login, logout, refreshMe],
+    [user, ready, login, register, logout, refreshMe],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

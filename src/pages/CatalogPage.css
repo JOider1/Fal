@@ -9,6 +9,12 @@
   width: 100%;
 }
 
+@media (max-width: 640px) {
+  .catalog-page {
+    padding: 0.75rem 0.75rem 0;
+  }
+}
+
 .catalog-page__body {
   flex: 1;
   min-height: 0;
@@ -113,9 +119,19 @@
   flex-shrink: 0;
 }
 
+.catalog-filters-toggle {
+  display: none;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
 @media (max-width: 900px) {
   .catalog-layout {
     grid-template-columns: 1fr;
+  }
+
+  .catalog-filters-toggle {
+    display: block;
   }
 
   .catalog-filters.panel {
@@ -124,5 +140,16 @@
     z-index: auto;
     max-height: none;
     overflow: visible;
+    display: none;
+  }
+
+  .catalog-filters.panel.catalog-filters--open {
+    display: block;
+  }
+}
+
+@media (min-width: 901px) {
+  .catalog-filters.panel {
+    display: block !important;
   }
 }

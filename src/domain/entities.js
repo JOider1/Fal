@@ -12,6 +12,22 @@ export class User {
   }
 }
 
+export class UserFavorite {
+  constructor({ id, userId, productId }) {
+    this.id = id
+    this.userId = userId
+    this.productId = productId
+  }
+
+  static fromApi(o) {
+    return new UserFavorite({
+      id: o.id,
+      userId: o.userId,
+      productId: o.productId,
+    })
+  }
+}
+
 export class Brand {
   constructor({ id, name }) {
     this.id = id

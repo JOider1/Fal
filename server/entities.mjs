@@ -151,3 +151,19 @@ export class User {
     })
   }
 }
+
+export class UserFavorite {
+  constructor({ id, userId, productId }) {
+    this.id = id
+    this.userId = userId
+    this.productId = productId
+  }
+
+  static fromRow(row) {
+    return new UserFavorite({
+      id: row.id,
+      userId: row.user_id,
+      productId: row.product_id,
+    })
+  }
+}

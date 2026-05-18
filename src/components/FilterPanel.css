@@ -87,6 +87,28 @@
   outline-offset: 2px;
 }
 
+.filter-group__checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filter-check {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.filter-check input {
+  accent-color: var(--accent);
+}
+
 .btn--ghost {
   border-color: transparent;
   text-decoration: underline;

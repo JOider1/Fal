@@ -8,6 +8,10 @@ function sortedStocks(sizeStocks) {
   return arr
 }
 
+function productImageSrc(p) {
+  return p.imageUrl || `/api/product-images/${p.id}`
+}
+
 export function ProductList({
   products,
   loading,
@@ -43,16 +47,32 @@ export function ProductList({
               <div className="product-card__thumb-wrap">
                 <img
                   className="product-card__img"
-                  src={p.imageUrl}
+                  src={productImageSrc(p)}
                   alt=""
                   loading="lazy"
                 />
+                {showFavoriteToggle ? (
+                  <button
+                    type="button"
+                    className={
+                      fav ? 'product-card__fav product-card__fav--on' : 'product-card__fav'
+                    }
+                    aria-pressed={fav}
+                    aria-label={fav ? 'Прибрати з обраного' : 'Додати до обраного'}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      onToggleFavorite?.(p.id)
+                    }}
+                  >
+                    ★
+                  </button>
+                ) : null}
               </div>
               <div className="product-card__title">{p.name}</div>
-              <div className="product-card__meta">
-                <span>{p.brandName}</span>
-                <span>{p.colorName}</span>
-                <span>{p.clothingTypeName}</span>
+              <div className="product-card__brand">{p.brandName}</div>
+              <div className="product-card__attrs">
+                {p.colorName} • {p.clothingTypeName}
               </div>
               {stocks.length ? (
                 <div className="product-card__sizes" aria-label="Розміри та залишок">
@@ -72,19 +92,6 @@ export function ProductList({
               ) : null}
               <div className="product-card__price">{p.price} ₴</div>
             </Link>
-            {showFavoriteToggle ? (
-              <button
-                type="button"
-                className={
-                  fav ? 'product-card__fav product-card__fav--on' : 'product-card__fav'
-                }
-                aria-pressed={fav}
-                aria-label={fav ? 'Прибрати з обраного' : 'Додати до обраного'}
-                onClick={() => onToggleFavorite?.(p.id)}
-              >
-                ★
-              </button>
-            ) : null}
           </li>
         )
       })}

@@ -41,12 +41,12 @@ export async function apiGet(path, extraHeaders = {}) {
   return body
 }
 
-export async function apiPost(path, body, { withAuth = false } = {}) {
+export async function apiPost(path, body, { withAuth = true } = {}) {
   const res = await fetch(`/api${path}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(withAuth ? authHeaders() : {}),
+      ...authHeaders(),
     },
     body: JSON.stringify(body ?? {}),
   })
@@ -61,11 +61,11 @@ export async function apiPost(path, body, { withAuth = false } = {}) {
 }
 
 export async function loginRequest(username, password) {
-  return apiPost(
-    '/auth/login',
-    { username, password },
-    { withAuth: false },
-  )
+  return apiPost('/auth/login', { username, password })
+}
+
+export async function registerRequest(username, password) {
+  return apiPost('/auth/register', { username, password })
 }
 
 export function fetchMe() {
@@ -127,4 +127,26 @@ export function fetchProductsByIds(ids) {
   const q = new URLSearchParams()
   q.set('ids', ids.join(','))
   return apiGet(`/products/by-ids?${q.toString()}`)
+}
+
+export function fetchFavoriteIds() {
+  return apiGet('/favorites').then((data) => {
+    const raw = data.productIds ?? []
+    return raw
+      .map((x) => Number.parseInt(String(x), 10))
+      .filter((n) => Number.isFinite(n) && n > 0)
+  })
+}
+
+export function toggleFavoriteProduct(productId) {
+  const id = Number.parseInt(String(productId), 10)
+  if (!Number.isFinite(id) || id < 1) {
+    return fetchFavoriteIds().then((productIds) => ({ productIds, added: false }))
+  }
+  return apiPost(`/favorites/${id}/toggle`, {}).then((data) => ({
+    productIds: (data.productIds ?? [])
+      .map((x) => Number.parseInt(String(x), 10))
+      .filter((n) => Number.isFinite(n) && n > 0),
+    added: Boolean(data.added),
+  }))
 }

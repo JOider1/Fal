@@ -1,7 +1,7 @@
 import { digitsOnly } from '../services/filterSettingsStorage'
 import './FilterPanel.css'
 
-function MultiGroup({ label, options, selectedIds, onChange, getLabel, getValue }) {
+function MultiGroup({ label, options, selectedIds, onChange, getLabel, getValue, variant = 'chip' }) {
   const toggle = (id) => {
     const v = Number(id)
     if (!Number.isFinite(v)) return
@@ -14,23 +14,42 @@ function MultiGroup({ label, options, selectedIds, onChange, getLabel, getValue 
   return (
     <fieldset className="filter-group">
       <legend>{label}</legend>
-      <div className="filter-group__chips">
-        {options.map((opt) => {
-          const id = getValue(opt)
-          const on = selectedIds.includes(id)
-          return (
-            <button
-              key={id}
-              type="button"
-              className={on ? 'chip chip--on' : 'chip'}
-              aria-pressed={on}
-              onClick={() => toggle(id)}
-            >
-              {getLabel(opt)}
-            </button>
-          )
-        })}
-      </div>
+      {variant === 'checkbox' ? (
+        <div className="filter-group__checks">
+          {options.map((opt) => {
+            const id = getValue(opt)
+            const checked = selectedIds.includes(id)
+            return (
+              <label key={id} className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggle(id)}
+                />
+                <span>{getLabel(opt)}</span>
+              </label>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="filter-group__chips">
+          {options.map((opt) => {
+            const id = getValue(opt)
+            const on = selectedIds.includes(id)
+            return (
+              <button
+                key={id}
+                type="button"
+                className={on ? 'chip chip--on' : 'chip'}
+                aria-pressed={on}
+                onClick={() => toggle(id)}
+              >
+                {getLabel(opt)}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </fieldset>
   )
 }
@@ -103,12 +122,13 @@ export function FilterPanel({
       </div>
 
       <MultiGroup
-        label="Бренд (кілька значень)"
+        label="Бренд"
         options={brands}
         selectedIds={brandIds}
         onChange={onBrandIds}
         getLabel={(b) => b.name}
         getValue={(b) => b.id}
+        variant="checkbox"
       />
       <MultiGroup
         label="Колір"
@@ -117,6 +137,7 @@ export function FilterPanel({
         onChange={onColorIds}
         getLabel={(c) => c.name}
         getValue={(c) => c.id}
+        variant="checkbox"
       />
       <MultiGroup
         label="Розмір"
