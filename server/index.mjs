@@ -10,13 +10,11 @@ import { requireAuth } from './auth/requireAuth.mjs'
 import { ensureSeedUsers } from './seedAuth.mjs'
 import { registerProductImageRoute } from './productImages.mjs'
 
-/* У підпроцесах (npm/concurrently на Windows) stdin часто «закритий»; без resume
-   Node інколи завершує процес після старту HTTP, хоча сервер уже слухає порт. */
 if (process.stdin.isTTY === false) {
   try {
     process.stdin.resume()
   } catch {
-    /* ignore */
+   
   }
 }
 

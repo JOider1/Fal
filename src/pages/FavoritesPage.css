@@ -38,3 +38,17 @@
 .favorites-page .banner {
   margin-bottom: 1rem;
 }
+
+@media (max-width: 640px) {
+  .favorites-page {
+    padding: 0.65rem 0.5rem 2rem;
+  }
+
+  .favorites-header {
+    margin-bottom: 0.85rem;
+  }
+
+  .favorites-header__title {
+    font-size: 1.35rem;
+  }
+}
