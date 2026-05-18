@@ -1,8 +1,3 @@
-/**
- * Доступ до даних каталогу через HTTP API.
- * UI-компоненти звертаються лише до цього сервісу, а не до БД напряму.
- */
-
 import { getAuthToken } from './authStorage'
 
 async function parseJsonSafe(res) {
