@@ -1,5 +1,7 @@
 import express from 'express'
 import cors from 'cors'
+import path from 'path'
+import { fileURLToPath } from 'url' 
 import { initDatabase, getDb, getInitError } from './database.mjs'
 import { runMigrations } from './migrate.mjs'
 import * as lookupRepository from './repositories/lookupRepository.mjs'
@@ -10,11 +12,14 @@ import { requireAuth } from './auth/requireAuth.mjs'
 import { ensureSeedUsers } from './seedAuth.mjs'
 import { registerProductImageRoute } from './productImages.mjs'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 if (process.stdin.isTTY === false) {
   try {
     process.stdin.resume()
   } catch {
-   
+    
   }
 }
 
@@ -102,7 +107,6 @@ app.get(
   }),
 )
 
-/** Окремий маршрут перед /api/products/:id, щоб не сплутати з id */
 app.get(
   '/api/products/by-ids',
   routeJson((req, res) => {
@@ -152,6 +156,12 @@ app.post('/api/favorites/:productId/toggle', (req, res) => {
   if (!auth) return
   const result = favoritesRepository.toggleFavorite(auth.userId, req.params.productId)
   res.json(result)
+})
+
+
+app.use(express.static(path.join(__dirname, '../dist')))
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'))
 })
 
 async function start() {
