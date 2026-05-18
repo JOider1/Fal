@@ -3,15 +3,19 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-"scripts": {
-  "dev": "concurrently --names api,web --kill-others-on-fail \"npm run dev:api\" \"npm run dev:web\"",
-  "dev:web": "vite",
-  "dev:api": "node server/index.mjs",
-  "build": "vite build",
-  "start": "node server/index.mjs",
-  "lint": "eslint .",
-  "preview": "vite preview"
-},
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently --names api,web --kill-others-on-fail \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:web": "vite",
+    "dev:api": "node server/index.mjs",
+    "build": "vite build",
+    "start": "node server/index.mjs",
+    "postinstall": "node scripts/copy-sql-wasm.mjs",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",

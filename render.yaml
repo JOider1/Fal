@@ -1,0 +1,17 @@
+# Blueprint для Render: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: clothing-catalog
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: AUTH_SECRET
+        generateValue: true
+      # Опційно: підключіть Persistent Disk у Render і вкажіть mount path, напр. /var/data
+      # - key: DATA_DIR
+      #   value: /var/data

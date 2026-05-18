@@ -1,16 +1,52 @@
-# React + Vite
+# Каталог одягу
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Веб-додаток (React + Vite + Express + SQLite/sql.js) для перегляду каталогу, фільтрації та обраного.
 
-Currently, two official plugins are available:
+## Локальний запуск
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+- Сайт: http://localhost:5173  
+- API: http://localhost:3001  
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Демо-акаунти: `admin` / `admin123`, `user` / `user123`.
 
-## Expanding the ESLint configuration
+### Продакшен локально
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run build
+npm start
+```
+
+Відкрийте http://localhost:3001 — сервер віддає зібраний фронтенд і API.
+
+## Деплой на Render
+
+1. Завантажте репозиторій на GitHub.
+2. У [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint** (або **Web Service**).
+3. Підключіть репозиторій; Render підхопить `render.yaml` або налаштуйте вручну:
+   - **Build Command:** `npm install && npm run build`
+   - **Start Command:** `npm start`
+   - **Health Check Path:** `/api/health`
+4. Змінні середовища:
+   - `NODE_ENV` = `production`
+   - `AUTH_SECRET` — згенеруйте довгий випадковий рядок (Render може зробити це автоматично через Blueprint).
+5. Після деплою відкрийте URL сервісу (наприклад `https://clothing-catalog.onrender.com`).
+
+### Збереження бази даних на Render
+
+На безкоштовному плані диск **епізерний** — після redeploy БД створюється заново (міграції + демо-користувачі). Щоб зберігати дані:
+
+1. Додайте **Persistent Disk** до Web Service (mount path, наприклад `/var/data`).
+2. Додайте змінну `DATA_DIR` = `/var/data`.
+
+## Структура
+
+- `src/` — React-клієнт
+- `server/` — Express API, міграції, SQLite
+- `public/images/products/` — зображення товарів (`1.svg`, `1.jpg`, …)
+- `data/catalog.db` — локальна база (не в git)

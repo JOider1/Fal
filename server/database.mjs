@@ -4,16 +4,24 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// Коренева папка проєкту
 const rootDir = path.resolve(__dirname, '..')
 
-// Шлях до папки з базою даних
-export const dataDir = path.join(rootDir, 'data')
+export const dataDir = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(rootDir, 'data')
+
 export const dbPath = path.join(dataDir, 'catalog.db')
 
-// ШЛЯХ ОНОВЛЕНО: Тепер беремо файл безпосередньо з папки server/
-const wasmPath = path.join(__dirname, 'sql-wasm.wasm')
+function resolveWasmPath() {
+  const candidates = [
+    path.join(__dirname, 'sql-wasm.wasm'),
+    path.join(rootDir, 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm'),
+  ]
+  for (const fp of candidates) {
+    if (fs.existsSync(fp)) return fp
+  }
+  return null
+}
 
 let dbInstance = null
 let initError = null
@@ -26,14 +34,13 @@ export async function initDatabase() {
   if (dbInstance) return dbInstance
   if (initError) throw initError
   try {
-    // Автоматично створюємо папку data, якщо вона відсутня
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true })
-    }
+    fs.mkdirSync(dataDir, { recursive: true })
 
-    // Перевіряємо наявність WASM файлу
-    if (!fs.existsSync(wasmPath)) {
-      throw new Error(`Файл sql-wasm.wasm не знайдено за шляхом: ${wasmPath}`)
+    const wasmPath = resolveWasmPath()
+    if (!wasmPath) {
+      throw new Error(
+        'Не знайдено sql-wasm.wasm. Виконайте npm install у корені проєкту.',
+      )
     }
 
     const wasmBinary = fs.readFileSync(wasmPath)
@@ -43,13 +50,12 @@ export async function initDatabase() {
       const buf = fs.readFileSync(dbPath)
       dbInstance = new SQL.Database(new Uint8Array(buf))
     } else {
-      // Якщо файлу бази немає, створюємо новий пустий екземпляр
       dbInstance = new SQL.Database()
     }
     return dbInstance
   } catch (e) {
     initError = e
-    console.error('Помилка ініціалізації бази даних у файлі database.mjs:', e)
+    console.error('Помилка ініціалізації БД:', e)
     throw e
   }
 }

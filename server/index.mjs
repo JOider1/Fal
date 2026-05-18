@@ -1,7 +1,8 @@
 import express from 'express'
 import cors from 'cors'
+import fs from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url' 
+import { fileURLToPath } from 'url'
 import { initDatabase, getDb, getInitError } from './database.mjs'
 import { runMigrations } from './migrate.mjs'
 import * as lookupRepository from './repositories/lookupRepository.mjs'
@@ -12,18 +13,14 @@ import { requireAuth } from './auth/requireAuth.mjs'
 import { ensureSeedUsers } from './seedAuth.mjs'
 import { registerProductImageRoute } from './productImages.mjs'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-if (process.stdin.isTTY === false) {
-  try {
-    process.stdin.resume()
-  } catch {
-    
-  }
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const rootDir = path.resolve(__dirname, '..')
+const distDir = path.join(rootDir, 'dist')
+const publicDir = path.join(rootDir, 'public')
 
 const port = Number.parseInt(process.env.PORT || '3001', 10)
+const isProduction = process.env.NODE_ENV === 'production'
+
 const app = express()
 
 app.use(cors({ origin: true }))
@@ -158,28 +155,49 @@ app.post('/api/favorites/:productId/toggle', (req, res) => {
   res.json(result)
 })
 
+function registerFrontend() {
+  if (fs.existsSync(distDir)) {
+    app.use(express.static(distDir, { index: false }))
+    const indexHtml = path.join(distDir, 'index.html')
+    app.use((req, res, next) => {
+      if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+      if (req.path.startsWith('/api')) return next()
+      if (path.extname(req.path)) return next()
+      res.sendFile(indexHtml, (err) => {
+        if (err) next(err)
+      })
+    })
+    return
+  }
 
-app.use(express.static(path.join(__dirname, '../dist')))
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'))
-})
+  if (!isProduction && fs.existsSync(publicDir)) {
+    app.use(express.static(publicDir))
+    console.warn(
+      'Папка dist/ відсутня — для продакшену виконайте npm run build. Зараз лише public/.',
+    )
+    return
+  }
+
+  console.warn(
+    'Папка dist/ відсутня. Зберіть фронтенд: npm run build (обов’язково для Render).',
+  )
+}
+
+registerFrontend()
 
 async function start() {
   try {
     await initDatabase()
     runMigrations()
     ensureSeedUsers()
-    app.listen(port, () => {
-      console.log(`Catalog API: http://localhost:${port}`)
-    })
+    console.log('База даних готова.')
   } catch (e) {
     console.error('Не вдалося ініціалізувати БД:', e)
-    app.listen(port, () => {
-      console.log(
-        `Catalog API: http://localhost:${port} (БД недоступна — /api повертатиме 503)`,
-      )
-    })
   }
+
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Сервер: http://0.0.0.0:${port} (${isProduction ? 'production' : 'development'})`)
+  })
 }
 
 start()
