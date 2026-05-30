@@ -9,7 +9,9 @@ function sortedStocks(sizeStocks) {
 }
 
 function productImageSrc(p) {
-  return p.imageUrl || `/api/product-images/${p.id}`
+  const base = p.imageUrl || `/api/product-images/${p.id}`
+  // Версійний параметр оминає стару закешовану картинку; далі свіжість тримає no-cache + ETag
+  return base.includes('?') ? base : `${base}?v=1`
 }
 
 export function ProductList({
@@ -48,8 +50,14 @@ export function ProductList({
                 <img
                   className="product-card__img"
                   src={productImageSrc(p)}
-                  alt=""
+                  alt={`${p.name} — ${p.brandName}, ${p.colorName}`}
                   loading="lazy"
+                  onError={(e) => {
+                    if (!e.currentTarget.dataset.fallback) {
+                      e.currentTarget.dataset.fallback = '1'
+                      e.currentTarget.src = '/api/product-images/placeholder'
+                    }
+                  }}
                 />
                 {showFavoriteToggle ? (
                   <button

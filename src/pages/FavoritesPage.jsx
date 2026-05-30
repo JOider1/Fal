@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { FavoritesList } from '../components/FavoritesList'
 import { CatalogApiError, fetchProductsByIds } from '../services/catalogApi'
 import { useFavorites } from '../context/FavoritesContext'
+import { useAuth } from '../context/AuthContext'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './FavoritesPage.css'
 
@@ -10,6 +11,7 @@ export function FavoritesPage() {
   useDocumentTitle('Обрані товари')
 
   const navigate = useNavigate()
+  const { user, ready } = useAuth()
   const { favoriteIds, toggle: toggleFavorite } = useFavorites()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -48,6 +50,10 @@ export function FavoritesPage() {
     } catch {
       /* ignore */
     }
+  }
+
+  if (ready && !user) {
+    return <Navigate to="/login" replace state={{ from: { pathname: '/favorites' } }} />
   }
 
   return (

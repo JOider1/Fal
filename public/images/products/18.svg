@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Куртка бомбер Bershka">
+  <defs>
+    <linearGradient id="bg18" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef1f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg18)"/>
+  <ellipse cx="300" cy="455" rx="120" ry="20" fill="#000" opacity="0.06"/>
+  <g transform="translate(45,5)">
+      <path fill="#a3a8af" stroke="#6f747c" stroke-width="3" stroke-linejoin="round" d="M205 150 L255 165 L305 150 L300 178 L356 206 L334 258 L304 244 L304 436 L206 436 L206 244 L176 258 L154 206 L210 178 Z"/>
+      <path fill="none" stroke="#6f747c" stroke-width="3" d="M255 165 L255 432"/>
+      <path fill="#a3a8af" stroke="#6f747c" stroke-width="3" stroke-linejoin="round" d="M230 150 L255 182 L242 156 Z"/><path fill="#a3a8af" stroke="#6f747c" stroke-width="3" stroke-linejoin="round" d="M280 150 L255 182 L268 156 Z"/>
+      <path fill="none" stroke="#6f747c" stroke-width="2.5" d="M250 175 L250 430 M260 175 L260 430"/></g>
+  <rect x="0" y="540" width="600" height="60" fill="#0f172a" opacity="0.04"/>
+  <text x="300" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#111827"><tspan x="300" dy="0">Куртка бомбер</tspan></text>
+  <text x="300" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#6b7280" letter-spacing="1">Bershka</text>
+</svg>

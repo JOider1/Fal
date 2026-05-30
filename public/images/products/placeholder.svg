@@ -1,1 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="320" viewBox="0 0 400 320"><rect fill="#e5e7eb" width="400" height="320"/><text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="#6b7280" font-family="system-ui,sans-serif" font-size="18">5<0T D>B></text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Зображення товару відсутнє">
+  <rect width="600" height="600" fill="#eef1f5"/>
+  <g transform="translate(225,205)" fill="none" stroke="#9aa1ac" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="0" y="0" width="150" height="130" rx="10"/>
+    <circle cx="45" cy="42" r="16"/>
+    <path d="M12 118 L60 70 L92 102 L120 78 L138 96"/>
+  </g>
+  <text x="300" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#6b7280">Немає фото</text>
+  <text x="300" y="456" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#9aa1ac">зображення буде додано пізніше</text>
+</svg>

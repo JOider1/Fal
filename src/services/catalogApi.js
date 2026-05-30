@@ -36,7 +36,7 @@ export async function apiGet(path, extraHeaders = {}) {
   return body
 }
 
-export async function apiPost(path, body, { withAuth = true } = {}) {
+export async function apiPost(path, body) {
   const res = await fetch(`/api${path}`, {
     method: 'POST',
     headers: {
@@ -44,6 +44,37 @@ export async function apiPost(path, body, { withAuth = true } = {}) {
       ...authHeaders(),
     },
     body: JSON.stringify(body ?? {}),
+  })
+  const data = await parseJsonSafe(res)
+  if (!res.ok) {
+    throw new CatalogApiError(data.message || res.statusText, {
+      code: data.error,
+      status: res.status,
+    })
+  }
+  return data
+}
+
+export async function apiPut(path, body) {
+  const res = await fetch(`/api${path}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(body ?? {}),
+  })
+  const data = await parseJsonSafe(res)
+  if (!res.ok) {
+    throw new CatalogApiError(data.message || res.statusText, {
+      code: data.error,
+      status: res.status,
+    })
+  }
+  return data
+}
+
+export async function apiDelete(path) {
+  const res = await fetch(`/api${path}`, {
+    method: 'DELETE',
+    headers: { ...authHeaders() },
   })
   const data = await parseJsonSafe(res)
   if (!res.ok) {
@@ -144,4 +175,22 @@ export function toggleFavoriteProduct(productId) {
       .filter((n) => Number.isFinite(n) && n > 0),
     added: Boolean(data.added),
   }))
+}
+
+// ---- Адмінпанель ----
+
+export function createProductRequest(payload) {
+  return apiPost('/admin/products', payload)
+}
+
+export function updateProductRequest(id, payload) {
+  return apiPut(`/admin/products/${encodeURIComponent(String(id))}`, payload)
+}
+
+export function deleteProductRequest(id) {
+  return apiDelete(`/admin/products/${encodeURIComponent(String(id))}`)
+}
+
+export function uploadProductImageRequest(id, dataUrl) {
+  return apiPost(`/admin/products/${encodeURIComponent(String(id))}/image`, { dataUrl })
 }

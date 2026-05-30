@@ -10,6 +10,7 @@ import * as productRepository from './repositories/productRepository.mjs'
 import * as favoritesRepository from './repositories/favoritesRepository.mjs'
 import { registerAuthRoutes } from './auth/authRoutes.mjs'
 import { requireAuth } from './auth/requireAuth.mjs'
+import { requireAdmin } from './auth/requireAuth.mjs'
 import { ensureSeedUsers } from './seedAuth.mjs'
 import { registerProductImageRoute } from './productImages.mjs'
 
@@ -24,7 +25,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 const app = express()
 
 app.use(cors({ origin: true }))
-app.use(express.json())
+app.use(express.json({ limit: '8mb' }))
 
 registerAuthRoutes(app)
 registerProductImageRoute(app)
@@ -154,6 +155,84 @@ app.post('/api/favorites/:productId/toggle', (req, res) => {
   const result = favoritesRepository.toggleFavorite(auth.userId, req.params.productId)
   res.json(result)
 })
+
+// ---- Адмінпанель: керування товарами (лише роль admin) ----
+
+function adminRoute(fn) {
+  return (req, res) => {
+    try {
+      getDb()
+    } catch (err) {
+      return sendDbError(res, err)
+    }
+    const auth = requireAdmin(req, res)
+    if (!auth) return
+    try {
+      fn(req, res)
+    } catch (err) {
+      if (err?.userMessage) {
+        return res.status(400).json({ error: 'invalid_input', message: err.userMessage })
+      }
+      console.error('Помилка адмін-операції:', err)
+      return res.status(500).json({ error: 'server_error', message: 'Внутрішня помилка сервера.' })
+    }
+  }
+}
+
+app.post(
+  '/api/admin/products',
+  adminRoute((req, res) => {
+    const product = productRepository.createProduct(req.body)
+    res.status(201).json(product)
+  }),
+)
+
+app.put(
+  '/api/admin/products/:id',
+  adminRoute((req, res) => {
+    const product = productRepository.updateProduct(req.params.id, req.body)
+    if (!product) {
+      return res.status(404).json({ error: 'not_found', message: 'Товар не знайдено' })
+    }
+    res.json(product)
+  }),
+)
+
+app.delete(
+  '/api/admin/products/:id',
+  adminRoute((req, res) => {
+    const ok = productRepository.deleteProduct(req.params.id)
+    if (!ok) {
+      return res.status(404).json({ error: 'not_found', message: 'Товар не знайдено' })
+    }
+    res.json({ deleted: true })
+  }),
+)
+
+app.post(
+  '/api/admin/products/:id/image',
+  adminRoute((req, res) => {
+    const dataUrl = String(req.body?.dataUrl ?? '')
+    const m = /^data:(image\/(png|jpeg|jpg|webp|svg\+xml));base64,/.exec(dataUrl)
+    if (!m) {
+      return res
+        .status(400)
+        .json({ error: 'invalid_image', message: 'Підтримуються лише зображення PNG, JPEG, WEBP або SVG.' })
+    }
+    // обмеження розміру (~5 МБ після декодування)
+    const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1)
+    if (Buffer.byteLength(base64, 'base64') > 5 * 1024 * 1024) {
+      return res
+        .status(400)
+        .json({ error: 'too_large', message: 'Розмір зображення не має перевищувати 5 МБ.' })
+    }
+    const product = productRepository.setProductImage(req.params.id, dataUrl)
+    if (!product) {
+      return res.status(404).json({ error: 'not_found', message: 'Товар не знайдено' })
+    }
+    res.json(product)
+  }),
+)
 
 function registerFrontend() {
   if (fs.existsSync(distDir)) {

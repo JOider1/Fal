@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Сукня вечірня Zara">
+  <defs>
+    <linearGradient id="bg26" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef1f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg26)"/>
+  <ellipse cx="300" cy="455" rx="120" ry="20" fill="#000" opacity="0.06"/>
+  <g transform="translate(45,5)">
+      <path fill="#33343a" stroke="#15161b" stroke-width="3" stroke-linejoin="round" d="M212 150 L298 150 L300 172 L345 198 L327 244 L300 230 L325 445 L185 445 L210 230 L183 244 L165 198 L210 172 Z"/>
+      <path fill="#222329" d="M255 172 L255 445" stroke="#15161b" stroke-width="0" opacity="0.0"/>
+      <path fill="none" stroke="#15161b" stroke-width="2" d="M222 250 L288 250"/>
+      <path fill="none" stroke="#15161b" stroke-width="2.5" d="M232 150 Q255 170 278 150"/></g>
+  <rect x="0" y="540" width="600" height="60" fill="#0f172a" opacity="0.04"/>
+  <text x="300" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#111827"><tspan x="300" dy="0">Сукня вечірня</tspan></text>
+  <text x="300" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#6b7280" letter-spacing="1">Zara</text>
+</svg>

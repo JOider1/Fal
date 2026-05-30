@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Джинси скінні Pull&amp;Bear">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Джинси широкі Benetton">
   <defs>
-    <linearGradient id="bg5" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="bg24" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef1f5"/>
     </linearGradient>
   </defs>
-  <rect width="600" height="600" fill="url(#bg5)"/>
+  <rect width="600" height="600" fill="url(#bg24)"/>
   <ellipse cx="300" cy="455" rx="120" ry="20" fill="#000" opacity="0.06"/>
   <g transform="translate(45,5)">
       <path fill="#33343a" stroke="#15161b" stroke-width="3" stroke-linejoin="round" d="M200 150 L310 150 L320 300 L300 445 L262 445 L255 320 L248 445 L210 445 L190 300 Z"/>
@@ -12,6 +12,6 @@
       <rect x="206" y="158" width="98" height="26" rx="4" fill="#222329" opacity="0.25"/>
       <line x1="218" y1="170" x2="234" y2="170" stroke="#15161b" stroke-width="2"/></g>
   <rect x="0" y="540" width="600" height="60" fill="#0f172a" opacity="0.04"/>
-  <text x="300" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#111827"><tspan x="300" dy="0">Джинси скінні</tspan></text>
-  <text x="300" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#6b7280" letter-spacing="1">Pull&amp;Bear</text>
+  <text x="300" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#111827"><tspan x="300" dy="0">Джинси широкі</tspan></text>
+  <text x="300" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#6b7280" letter-spacing="1">Benetton</text>
 </svg>

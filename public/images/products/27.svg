@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Футболка поло Reserved">
+  <defs>
+    <linearGradient id="bg27" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef1f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg27)"/>
+  <ellipse cx="300" cy="455" rx="120" ry="20" fill="#000" opacity="0.06"/>
+  <g transform="translate(45,5)">
+      <path fill="#f3f4f6" stroke="#c2c7cf" stroke-width="3" stroke-linejoin="round" d="M210 158 L255 172 L300 158 L348 195 L328 238 L302 224 L302 410 L208 410 L208 224 L182 238 L162 195 Z"/>
+      <path fill="none" stroke="#c2c7cf" stroke-width="2.5" d="M232 158 Q255 180 278 158"/></g>
+  <rect x="0" y="540" width="600" height="60" fill="#0f172a" opacity="0.04"/>
+  <text x="300" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#111827"><tspan x="300" dy="0">Футболка поло</tspan></text>
+  <text x="300" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#6b7280" letter-spacing="1">Reserved</text>
+</svg>

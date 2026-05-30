@@ -13,6 +13,8 @@ import {
   fetchSizes,
 } from '../services/catalogApi'
 import { useFavorites } from '../context/FavoritesContext'
+import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import {
   loadFilterSettings,
   saveFilterSettings,
@@ -53,6 +55,8 @@ export function CatalogPage() {
   const [listError, setListError] = useState(null)
 
   const { favoriteIds, toggle: toggleFavorite } = useFavorites()
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
@@ -161,13 +165,17 @@ export function CatalogPage() {
 
   const onToggleFavorite = useCallback(
     async (id) => {
+      if (!user) {
+        navigate('/login')
+        return
+      }
       try {
         await toggleFavorite(id)
       } catch {
         /* залишаємо попередній стан */
       }
     },
-    [toggleFavorite],
+    [toggleFavorite, user, navigate],
   )
 
   const dbError = lookupsError || listError
@@ -320,7 +328,7 @@ export function CatalogPage() {
                 <ProductList
                   products={items}
                   loading={listLoading}
-                  showFavoriteToggle
+                  showFavoriteToggle={!!user}
                   favoriteIds={favoriteIds}
                   onToggleFavorite={onToggleFavorite}
                 />

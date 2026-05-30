@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Светр в'язаний Reserved">
+  <defs>
+    <linearGradient id="bg15" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef1f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg15)"/>
+  <ellipse cx="300" cy="455" rx="120" ry="20" fill="#000" opacity="0.06"/>
+  <g transform="translate(45,5)">
+      <path fill="#d8c4a4" stroke="#a98f68" stroke-width="3" stroke-linejoin="round" d="M210 150 L300 150 L300 175 L355 200 L335 250 L300 235 L300 430 L210 430 L210 235 L175 250 L155 200 L210 175 Z"/>
+      <path fill="#c2ac88" d="M255 175 L300 175 L300 430 L255 430 Z" opacity="0.18"/>
+      <path fill="none" stroke="#a98f68" stroke-width="2.5" d="M230 150 Q255 172 280 150"/></g>
+  <rect x="0" y="540" width="600" height="60" fill="#0f172a" opacity="0.04"/>
+  <text x="300" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#111827"><tspan x="300" dy="0">Светр в&#x27;язаний</tspan></text>
+  <text x="300" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#6b7280" letter-spacing="1">Reserved</text>
+</svg>

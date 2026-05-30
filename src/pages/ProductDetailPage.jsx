@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CatalogApiError, fetchProductById } from '../services/catalogApi'
 import { useFavorites } from '../context/FavoritesContext'
+import { useAuth } from '../context/AuthContext'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './ProductDetailPage.css'
 
@@ -14,6 +15,7 @@ function sortedStocks(sizeStocks) {
 export function ProductDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { isFavorite, toggle: toggleFavorite } = useFavorites()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -56,6 +58,10 @@ export function ProductDetailPage() {
 
   const onToggleFav = async () => {
     setFavError(null)
+    if (!user) {
+      navigate('/login', { state: { from: { pathname: `/product/${id}` } } })
+      return
+    }
     try {
       await toggleFavorite(id)
     } catch (e) {
@@ -67,7 +73,8 @@ export function ProductDetailPage() {
     }
   }
 
-  const imageSrc = product?.imageUrl || `/api/product-images/${product?.id ?? id}`
+  const imageBase = product?.imageUrl || `/api/product-images/${product?.id ?? id}`
+  const imageSrc = imageBase.includes('?') ? imageBase : `${imageBase}?v=1`
 
   return (
     <div className="detail-page">
@@ -98,7 +105,17 @@ export function ProductDetailPage() {
         <article className="detail-card panel">
           <div className="detail-layout">
             <div className="detail-hero">
-              <img className="detail-hero__img" src={imageSrc} alt="" />
+              <img
+                className="detail-hero__img"
+                src={imageSrc}
+                alt={`${product.name} — ${product.brandName}, ${product.colorName}`}
+                onError={(e) => {
+                  if (!e.currentTarget.dataset.fallback) {
+                    e.currentTarget.dataset.fallback = '1'
+                    e.currentTarget.src = '/api/product-images/placeholder'
+                  }
+                }}
+              />
             </div>
 
             <div className="detail-info">

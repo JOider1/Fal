@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { getProductImageData } from './repositories/productRepository.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
@@ -46,12 +47,33 @@ export function registerProductImageRoute(app) {
     if (!/^\d+$/.test(id) && id !== 'placeholder') {
       return res.status(400).end()
     }
+
+    // 1) Зображення, завантажене через адмінпанель (зберігається в БД як data-URL)
+    if (id !== 'placeholder') {
+      try {
+        const dataUrl = getProductImageData(id)
+        const m = /^data:([^;,]+);base64,(.+)$/s.exec(dataUrl || '')
+        if (m) {
+          res.setHeader('Content-Type', m[1])
+          res.setHeader('Cache-Control', 'no-cache')
+          return res.end(Buffer.from(m[2], 'base64'))
+        }
+      } catch {
+        /* БД може бути недоступна — переходимо до файлів */
+      }
+    }
+
+    // 2) Файл із public/images/products
     const hit = findImageFile(id)
     if (hit) {
       res.setHeader('Content-Type', MIME[hit.ext] ?? 'application/octet-stream')
-      res.setHeader('Cache-Control', 'public, max-age=3600')
+      // no-cache: браузер кешує, але щоразу ревалідує (ETag від sendFile),
+      // тож оновлене фото показується одразу, а не за годину
+      res.setHeader('Cache-Control', 'no-cache')
       return res.sendFile(hit.fp)
     }
+
+    // 3) Зображення-заглушка за замовчуванням
     const fallback = findImageFile('placeholder')
     if (fallback) {
       res.setHeader('Content-Type', MIME[fallback.ext])

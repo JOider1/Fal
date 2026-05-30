@@ -1,11 +1,10 @@
-import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './AppShell.css'
 
-/** Оболонка для всіх сторінок після входу: навігація + обов’язкова авторизація */
+/** Оболонка сторінок: каталог відкритий для всіх, обране/адмінка — для авторизованих */
 export function AppShell() {
   const { user, ready, isAdmin, logout } = useAuth()
-  const location = useLocation()
   const navigate = useNavigate()
 
   if (!ready) {
@@ -16,10 +15,6 @@ export function AppShell() {
     )
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace state={{ from: location }} />
-  }
-
   return (
     <div className="app-shell-layout">
       <header className="app-shell">
@@ -28,9 +23,11 @@ export function AppShell() {
             <Link className="nav-link" to="/">
               Каталог
             </Link>
-            <Link className="nav-link" to="/favorites">
-              Обране
-            </Link>
+            {user ? (
+              <Link className="nav-link" to="/favorites">
+                Обране
+              </Link>
+            ) : null}
             {isAdmin ? (
               <Link className="nav-link" to="/admin">
                 Адмін
@@ -38,20 +35,28 @@ export function AppShell() {
             ) : null}
           </nav>
           <div className="app-shell__right">
-            <span className="app-shell__user">
-              {user.username}
-              {isAdmin ? ' · адмін' : ' · користувач'}
-            </span>
-            <button
-              type="button"
-              className="nav-link app-shell__exit"
-              onClick={() => {
-                logout()
-                navigate('/login', { replace: true })
-              }}
-            >
-              Вихід
-            </button>
+            {user ? (
+              <>
+                <span className="app-shell__user">
+                  {user.username}
+                  {isAdmin ? ' · адмін' : ' · користувач'}
+                </span>
+                <button
+                  type="button"
+                  className="nav-link app-shell__exit"
+                  onClick={() => {
+                    logout()
+                    navigate('/', { replace: true })
+                  }}
+                >
+                  Вихід
+                </button>
+              </>
+            ) : (
+              <Link className="nav-link app-shell__exit" to="/login">
+                Вхід
+              </Link>
+            )}
           </div>
         </div>
       </header>

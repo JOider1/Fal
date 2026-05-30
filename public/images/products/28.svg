@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Штани карго Mango">
+  <defs>
+    <linearGradient id="bg28" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef1f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg28)"/>
+  <ellipse cx="300" cy="455" rx="120" ry="20" fill="#000" opacity="0.06"/>
+  <g transform="translate(45,5)">
+      <path fill="#d8c4a4" stroke="#a98f68" stroke-width="3" stroke-linejoin="round" d="M204 152 L306 152 L312 290 L296 442 L262 442 L255 300 L248 442 L214 442 L198 290 Z"/>
+      <path fill="none" stroke="#a98f68" stroke-width="2.5" d="M255 168 L255 290"/>
+      <rect x="208" y="158" width="94" height="22" rx="4" fill="#c2ac88" opacity="0.2"/></g>
+  <rect x="0" y="540" width="600" height="60" fill="#0f172a" opacity="0.04"/>
+  <text x="300" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#111827"><tspan x="300" dy="0">Штани карго</tspan></text>
+  <text x="300" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#6b7280" letter-spacing="1">Mango</text>
+</svg>

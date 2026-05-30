@@ -1,6 +1,6 @@
 import { Product } from '../entities.mjs'
-import { getDb } from '../database.mjs'
-import { queryAll, queryGet } from '../query.mjs'
+import { getDb, persistDatabase } from '../database.mjs'
+import { queryAll, queryGet, queryRun } from '../query.mjs'
 import { getStockByProductIds } from './stockRepository.mjs'
 
 const BASE_SELECT = `
@@ -172,4 +172,191 @@ export function findProductById(id) {
   if (!row) return null
   const [json] = attachStocks([row])
   return json
+}
+
+// ---- Операції запису (адмінпанель) ----
+
+const FK = {
+  brand_id: 'brands',
+  color_id: 'colors',
+  season_id: 'seasons',
+  clothing_type_id: 'clothing_types',
+}
+
+function toPositiveInt(value) {
+  const n = Number.parseInt(String(value), 10)
+  return Number.isFinite(n) && n > 0 ? n : null
+}
+
+/** Перевіряє та нормалізує поля товару; кидає Error з .userMessage за потреби. */
+function normalizeProductInput(input) {
+  const name = String(input?.name ?? '').trim()
+  if (name.length < 2) {
+    const e = new Error('invalid_name')
+    e.userMessage = 'Назва товару має містити щонайменше 2 символи.'
+    throw e
+  }
+  const price = Number.parseFloat(String(input?.price))
+  if (!Number.isFinite(price) || price < 0) {
+    const e = new Error('invalid_price')
+    e.userMessage = 'Ціна має бути невід’ємним числом.'
+    throw e
+  }
+  const fields = {
+    name,
+    description: String(input?.description ?? '').trim(),
+    price,
+    brand_id: toPositiveInt(input?.brandId ?? input?.brand_id),
+    color_id: toPositiveInt(input?.colorId ?? input?.color_id),
+    season_id: toPositiveInt(input?.seasonId ?? input?.season_id),
+    clothing_type_id: toPositiveInt(input?.clothingTypeId ?? input?.clothing_type_id),
+  }
+  const db = getDb()
+  for (const [col, table] of Object.entries(FK)) {
+    if (!fields[col]) {
+      const e = new Error('missing_fk')
+      e.userMessage = `Не вибрано значення для поля «${col}».`
+      throw e
+    }
+    const ok = queryGet(db, `SELECT 1 AS ok FROM ${table} WHERE id = ?`, [fields[col]])
+    if (!ok?.ok) {
+      const e = new Error('bad_fk')
+      e.userMessage = `Вибране значення для «${col}» не існує.`
+      throw e
+    }
+  }
+  return fields
+}
+
+/** Нормалізує залишки по розмірах: масив { sizeId, quantity } з валідними розмірами. */
+function normalizeStocks(input) {
+  const db = getDb()
+  const raw = Array.isArray(input?.sizeStocks) ? input.sizeStocks : []
+  const seen = new Set()
+  const stocks = []
+  for (const entry of raw) {
+    const sizeId = toPositiveInt(entry?.sizeId ?? entry?.size_id)
+    if (!sizeId || seen.has(sizeId)) continue
+    const qty = Number.parseInt(String(entry?.quantity), 10)
+    if (!Number.isFinite(qty) || qty < 0) continue
+    const ok = queryGet(db, `SELECT 1 AS ok FROM sizes WHERE id = ?`, [sizeId])
+    if (!ok?.ok) continue
+    seen.add(sizeId)
+    stocks.push({ sizeId, quantity: qty })
+  }
+  return stocks
+}
+
+/**
+ * Визначає основний size_id товару (NOT NULL) та перелік залишків.
+ * Розмір береться явний, інакше — найменший із розмірів, де кількість > 0.
+ */
+function resolveSizeAndStocks(input) {
+  const stocks = normalizeStocks(input)
+  let sizeId = toPositiveInt(input?.sizeId ?? input?.size_id)
+  if (sizeId) {
+    const ok = queryGet(getDb(), `SELECT 1 AS ok FROM sizes WHERE id = ?`, [sizeId])
+    if (!ok?.ok) sizeId = null
+  }
+  if (!sizeId) {
+    const positive = stocks.filter((s) => s.quantity > 0).sort((a, b) => a.sizeId - b.sizeId)
+    sizeId = positive[0]?.sizeId ?? null
+  }
+  if (!sizeId) {
+    const e = new Error('no_size')
+    e.userMessage = 'Вкажіть кількість хоча б для одного розміру.'
+    throw e
+  }
+  return { sizeId, stocks }
+}
+
+/** Перезаписує залишки товару по розмірах. */
+function writeStocks(productId, stocks) {
+  const db = getDb()
+  queryRun(db, `DELETE FROM product_stock WHERE product_id = ?`, [productId])
+  for (const s of stocks) {
+    queryRun(
+      db,
+      `INSERT INTO product_stock (product_id, size_id, quantity) VALUES (?, ?, ?)`,
+      [productId, s.sizeId, s.quantity],
+    )
+  }
+}
+
+export function createProduct(input) {
+  const db = getDb()
+  const f = normalizeProductInput(input)
+  const { sizeId, stocks } = resolveSizeAndStocks(input)
+  queryRun(
+    db,
+    `INSERT INTO products
+       (name, description, price, brand_id, color_id, size_id, season_id, clothing_type_id)
+     VALUES (?,?,?,?,?,?,?,?)`,
+    [f.name, f.description, f.price, f.brand_id, f.color_id, sizeId, f.season_id, f.clothing_type_id],
+  )
+  const row = queryGet(db, `SELECT last_insert_rowid() AS id`)
+  const id = Number(row?.id)
+  queryRun(db, `UPDATE products SET image_url = ? WHERE id = ?`, [`/api/product-images/${id}`, id])
+  writeStocks(id, stocks)
+  persistDatabase()
+  return findProductById(id)
+}
+
+export function updateProduct(id, input) {
+  const db = getDb()
+  const nid = toPositiveInt(id)
+  if (!nid) return null
+  const exists = queryGet(db, `SELECT 1 AS ok FROM products WHERE id = ?`, [nid])
+  if (!exists?.ok) return null
+  const f = normalizeProductInput(input)
+  const { sizeId, stocks } = resolveSizeAndStocks(input)
+  queryRun(
+    db,
+    `UPDATE products SET
+       name = ?, description = ?, price = ?, brand_id = ?, color_id = ?,
+       size_id = ?, season_id = ?, clothing_type_id = ?
+     WHERE id = ?`,
+    [f.name, f.description, f.price, f.brand_id, f.color_id, sizeId, f.season_id, f.clothing_type_id, nid],
+  )
+  writeStocks(nid, stocks)
+  persistDatabase()
+  return findProductById(nid)
+}
+
+export function deleteProduct(id) {
+  const db = getDb()
+  const nid = toPositiveInt(id)
+  if (!nid) return false
+  const exists = queryGet(db, `SELECT 1 AS ok FROM products WHERE id = ?`, [nid])
+  if (!exists?.ok) return false
+  queryRun(db, `DELETE FROM product_stock WHERE product_id = ?`, [nid])
+  queryRun(db, `DELETE FROM user_favorites WHERE product_id = ?`, [nid])
+  queryRun(db, `DELETE FROM products WHERE id = ?`, [nid])
+  persistDatabase()
+  return true
+}
+
+/** Зберігає завантажене зображення (data-URL) у БД. */
+export function setProductImage(id, dataUrl) {
+  const db = getDb()
+  const nid = toPositiveInt(id)
+  if (!nid) return null
+  const exists = queryGet(db, `SELECT 1 AS ok FROM products WHERE id = ?`, [nid])
+  if (!exists?.ok) return null
+  queryRun(
+    db,
+    `UPDATE products SET image_data = ?, image_url = ? WHERE id = ?`,
+    [dataUrl, `/api/product-images/${nid}`, nid],
+  )
+  persistDatabase()
+  return findProductById(nid)
+}
+
+/** Повертає data-URL зображення з БД або null. */
+export function getProductImageData(id) {
+  const db = getDb()
+  const nid = toPositiveInt(id)
+  if (!nid) return null
+  const row = queryGet(db, `SELECT image_data FROM products WHERE id = ?`, [nid])
+  return row?.image_data || null
 }

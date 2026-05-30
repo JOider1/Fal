@@ -59,14 +59,13 @@ export function LoginPage() {
       <div className="login-card panel">
         <h1 className="login-card__title">{isRegister ? 'Реєстрація' : 'Вхід'}</h1>
 
-        {!isRegister ? (
+        {isRegister ? (
           <p className="login-card__hint">
-            Демо: <strong>admin</strong> / <strong>admin123</strong> або{' '}
-            <strong>user</strong> / <strong>user123</strong>.
+            Створіть обліковий запис. Логін — від 3 символів, пароль — від 6.
           </p>
         ) : (
           <p className="login-card__hint">
-            Створіть обліковий запис. Логін — від 3 символів, пароль — від 6.
+            Увійдіть, щоб зберігати товари в обраному.
           </p>
         )}
 
